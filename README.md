@@ -70,10 +70,27 @@ aws dynamodb update-table \
     --attribute-definitions\
         AttributeName=SongTitle,AttributeType=S \
         AttributeName=SongYear,AttributeType=S \
+        
     --global-secondary-index-updates \
         "[{\"Create\":{\"IndexName\": \"SongTitleYear-index\",\"KeySchema\":[{\"AttributeName\":\"SongTitle\",\"KeyType\":\"HASH\"}, {\"AttributeName\":\"SongYear\",\"KeyType\":\"RANGE\"}], \
         \"ProvisionedThroughput\": {\"ReadCapacityUnits\": 10, \"WriteCapacityUnits\": 5      },\"Projection\":{\"ProjectionType\":\"ALL\"}}}]"
 ```
+
+- Criar um index global secundário baseado no título da música e na duração
+
+```
+aws dynamodb update-table \
+    --table-name Music \
+    --attribute-definitions\
+        AttributeName=SongTitle,AttributeType=S \
+        AttributeName=SongDuration,AttributeType=S \
+        
+    --global-secondary-index-updates \
+        "[{\"Create\":{\"IndexName\": \"SongDuration-index\",\"KeySchema\":[{\"AttributeName\":\"SongTitle\",\"KeyType\":\"HASH\"}, {\"AttributeName\":\"SongDuration\",\"KeyType\":\"RANGE\"}], \
+        \"ProvisionedThroughput\": {\"ReadCapacityUnits\": 10, \"WriteCapacityUnits\": 5      },\"Projection\":{\"ProjectionType\":\"ALL\"}}}]"
+```
+
+
 
 - Pesquisar item por artista
 
@@ -120,4 +137,14 @@ aws dynamodb query \
     --index-name SongTitleYear-index \
     --key-condition-expression "SongTitle = :v_song and SongYear = :v_year" \
     --expression-attribute-values  '{":v_song":{"S":"Wasting Love"},":v_year":{"S":"1992"} }'
+```
+
+- Pesquisa pelo index secundário baseado no título da música e na duração
+
+```
+aws dynamodb query \
+    --table-name Music \
+    --index-name SongDuration-index \
+    --key-condition-expression "SongTitle = :v_song and SongDuration = :v_durantion" \
+    --expression-attribute-values  '{":v_song":{"S":"Wasting Love"},":v_year":{"S":"3:30"} }'
 ```
